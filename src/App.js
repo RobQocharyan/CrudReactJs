@@ -1,5 +1,5 @@
-import "./App.css";
 import React, { useState } from "react";
+import "./App.css";
 
 const initialValues = {
   userName: "",
@@ -7,56 +7,87 @@ const initialValues = {
   userAge: "",
   userSalary: "",
 };
+const App = (props) => {
 
-function App() {
+    function getAge(dateString) 
+    {
+      if(typeof(dateString)==="string"){
+
+        var today = new Date();
+        var birthDate = new Date(dateString);
+        var age = today.getFullYear() - birthDate.getFullYear();
+        var m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
+        {
+            age--;
+        }
+      }else{
+        age = dateString;
+      }
+
+        return age;
+  };
   const [userData, setUserData] = useState(initialValues);
   const [users, setUsers] = useState([]);
-  const [editableUserData,seteditableUserData] = useState({
-    isEdit:false,
-    userIndex:null
-  })
+  const [editableUserData, seteditableUserData] = useState({
+    isEdit: false,
+    userIndex: null,
+  });
 
-  const handleRemoveClick = (index)=>{
-    setUsers(users.filter((user,userIndex)=>{
-      return userIndex !== index
-    }))
-  }
+  const handleRemoveClick = (index) => {
+    setUsers(
+      
+      users.filter((user, userIndex) => {
+        return userIndex !== index;
+      })
+    );
+  };
 
-  const isFilledFields = userData.userName && userData.userSurname && userData.userAge && userData.userSalary
+  const isFilledFields =
+    userData.userName &&
+    userData.userSurname &&
+    userData.userAge &&
+    userData.userSalary;
 
   const handleSubmitUser = (event) => {
     event.preventDefault();
-    if(isFilledFields){
-      if(editableUserData.isEdit){
+    if (isFilledFields) {
+      if (editableUserData.isEdit) {
         const editData = users;
-        editData.splice(editableUserData.userIndex,1,userData);
-        setUserData(editData)
+
+        editData.splice(editableUserData.userIndex, 1, userData); 
+        editData[0].userAge = getAge(editData[0].userAge); 
+
+        setUserData(editData);
 
         seteditableUserData({
-          isEdit:false,
-          userIndex:null
-        })
-      }else{
+          isEdit: false,
+          userIndex: null,
+        });
+      } else {
         setUsers((prevState) => {
-          return [...prevState, userData];
+          
+          prevState.userAge = getAge(userData.userAge);  
+          userData.userAge = getAge(userData.userAge);  
+          return [...prevState,userData];
         });
       }
-   
-    setUserData(initialValues);
-  }
+      setUserData(initialValues);
+    }
   };
 
-  const handleCleanClick = ()=>{
-    setUserData(initialValues)
-  }
+  const handleCleanClick = (props) => {
+    setUserData(initialValues);
+  };
 
-  const handleEditClick = (data,index)=>{
-    setUserData(data)
+  const handleEditClick = (data, index) => {
+    data.userAge = getAge(data.userAge)
+    setUserData(data);
     seteditableUserData({
-      isEdit:true,
-      userIndex:index
-    })
-  }
+      isEdit: true,
+      userIndex: index,
+    });
+  };
   return (
     <div className="wrapper">
       <div className="wrapper_content">
@@ -70,18 +101,28 @@ function App() {
             <th>Actions</th>
 
             <tbody>
-              {users.map((user,index) => {
+              {users.map((user, index) => {
                 return (
                   <tr>
-                    <td>{index+1}</td>
+                    <td>{index + 1}</td>
                     <td>{user.userName}</td>
                     <td>{user.userSurname}</td>
                     <td>{user.userAge}</td>
                     <td>{user.userSalary}</td>
                     <td>
                       <div className="as">
-                        <button className="edit_action" onClick={()=>handleEditClick(user,index)}>Edit</button>
-                        <button className="remove_action" onClick={()=>handleRemoveClick(index)}>Remove</button>
+                        <button
+                          className="edit_action"
+                          onClick={() => handleEditClick(user, index)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="remove_action"
+                          onClick={() => handleRemoveClick(index)}
+                        >
+                          Remove
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -114,8 +155,9 @@ function App() {
               }}
               value={userData.userSurname}
             />
+
             <input
-              type={"number"}
+              type={"date"}
               placeholder="Age"
               onChange={(e) => {
                 setUserData((prevState) => ({
@@ -123,7 +165,7 @@ function App() {
                   userAge: e.target.value,
                 }));
               }}
-              value={userData.userAge}
+              value={userData.age}
             />
             <input
               type={"number"}
@@ -139,14 +181,17 @@ function App() {
 
             <div className="buttons_wrapper">
               <button type="reset">Delete</button>
-              <button disabled={!isFilledFields} type="submit">{editableUserData.isEdit?"Edit":"add"}</button>
+              <button disabled={!isFilledFields} type="submit">
+                {editableUserData.isEdit ? "Edit" : "add"}
+              </button>
             </div>
-          </form>  
-          
+          </form>
         </div>
       </div>
+      <div></div>
+      {/* <DateInput /> */}
     </div>
   );
-}
+};
 
 export default App;
